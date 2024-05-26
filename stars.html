@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stars</title>
+    <style>
+      body {
+        background-color: black;
+      }
+      .star {
+        position: absolute;
+        transition-duration: 500ms;
+      }
+      .hidden {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const n = 3000;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const body = document.getElementsByTagName("body")[0];
+
+      Number.prototype.px = function () {
+        return Number.prototype.toString.call(this) + "px";
+      };
+
+      for (let i = 0; i < n; i++) {
+        createStar();
+      }
+
+      function createStar() {
+        const starSize = betaLeft() * 5;
+        const maxLeft = width - starSize;
+        const maxTop = height - starSize;
+        const left = Math.random() * maxLeft;
+        const top = Math.random() * maxTop;
+        const borderRadius = starSize / 2;
+        const activationRadius = betaLeft() * 100;
+        // skip green and magenta
+        // https://www.sciencefocus.com/space/why-arent-there-any-green-stars
+        let h = Math.random() * 140;
+        if (h > 40) {
+          h += 120;
+        }
+        const s = 25;
+        // the larger the star, more likely it is also brighter
+        const l = 50 + (betaRight() * 50 * starSize) / 5;
+        const color = `hsl(${h}, ${s}%, ${l}%)`;
+        const shadowSize = betaLeft() * starSize * 5;
+
+        const star = document.createElement("div");
+        star.classList.add("hidden", "star");
+        star.style.width = starSize.px();
+        star.style.height = starSize.px();
+        star.style.left = left.px();
+        star.style.top = top.px();
+        star.style.borderRadius = borderRadius.px();
+        star.style.backgroundColor = color;
+        star.style.boxShadow = `0 0 ${shadowSize.px()} ${color}`;
+        body.append(star);
+
+        document.addEventListener("mousemove", function (e) {
+          const x = left + starSize / 2;
+          const y = top + starSize / 2;
+          const cx = e.clientX;
+          const cy = e.clientY;
+          const dx = cx - x;
+          const dy = cy - y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < activationRadius) {
+            star.classList.remove("hidden");
+            setTimeout(function () {
+              star.classList.add("hidden");
+            }, 1000 + 500 * betaRight());
+          }
+        });
+      }
+
+      // non-uniform random numbers
+      // https://stackoverflow.com/a/16120286
+      function beta() {
+        const r = Math.random();
+        return Math.sin((r * Math.PI) / 2) ** 2;
+      }
+
+      function betaLeft() {
+        const b = beta();
+        return b < 0.5 ? 2 * b : 2 * (1 - b);
+      }
+
+      function betaRight() {
+        const b = beta();
+        return b > 0.5 ? 2 * b - 1 : 2 * (1 - b) - 1;
+      }
+    </script>
+  </body>
+</html>
